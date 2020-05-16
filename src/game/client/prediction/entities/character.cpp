@@ -782,48 +782,55 @@ void CCharacter::HandleTiles(int Index)
 	}
 
 	// handle switch tiles
-	if(Collision()->IsSwitch(MapIndex) == TILE_SWITCHOPEN && Team() != TEAM_SUPER)
+	int switchType = Collision()->IsSwitch(MapIndex);
+	int switcherNumber = Collision()->GetSwitchNumber(MapIndex);
+
+	if(switcherNumber != 0)
 	{
-		Collision()->m_pSwitchers[Collision()->GetSwitchNumber(MapIndex)].m_Status[Team()] = true;
-		Collision()->m_pSwitchers[Collision()->GetSwitchNumber(MapIndex)].m_EndTick[Team()] = 0;
-		Collision()->m_pSwitchers[Collision()->GetSwitchNumber(MapIndex)].m_Type[Team()] = TILE_SWITCHOPEN;
+		// handle switch tiles
+		if(switchType == TILE_SWITCHOPEN && Team() != TEAM_SUPER)
+		{
+			Collision()->m_pSwitchers[switcherNumber].m_Status[Team()] = true;
+			Collision()->m_pSwitchers[switcherNumber].m_EndTick[Team()] = 0;
+			Collision()->m_pSwitchers[switcherNumber].m_Type[Team()] = TILE_SWITCHOPEN;
+		}
+		else if(switchType == TILE_SWITCHTIMEDOPEN && Team() != TEAM_SUPER)
+		{
+			Collision()->m_pSwitchers[switcherNumber].m_Status[Team()] = true;
+			Collision()->m_pSwitchers[switcherNumber].m_EndTick[Team()] = GameWorld()->GameTick() + 1 + Collision()->GetSwitchDelay(MapIndex)*GameWorld()->GameTickSpeed();
+			Collision()->m_pSwitchers[switcherNumber].m_Type[Team()] = TILE_SWITCHTIMEDOPEN;
+		}
+		else if(switchType == TILE_SWITCHTIMEDCLOSE && Team() != TEAM_SUPER)
+		{
+			Collision()->m_pSwitchers[switcherNumber].m_Status[Team()] = false;
+			Collision()->m_pSwitchers[switcherNumber].m_EndTick[Team()] = GameWorld()->GameTick() + 1 + Collision()->GetSwitchDelay(MapIndex)*GameWorld()->GameTickSpeed();
+			Collision()->m_pSwitchers[switcherNumber].m_Type[Team()] = TILE_SWITCHTIMEDCLOSE;
+		}
+		else if(switchType == TILE_SWITCHCLOSE && Team() != TEAM_SUPER)
+		{
+			Collision()->m_pSwitchers[switcherNumber].m_Status[Team()] = false;
+			Collision()->m_pSwitchers[switcherNumber].m_EndTick[Team()] = 0;
+			Collision()->m_pSwitchers[switcherNumber].m_Type[Team()] = TILE_SWITCHCLOSE;
+		}
+		else if(switchType == TILE_FREEZE && Team() != TEAM_SUPER)
+		{
+			if(switcherNumber == 0 || Collision()->m_pSwitchers[switcherNumber].m_Status[Team()])
+				Freeze(Collision()->GetSwitchDelay(MapIndex));
+		}
+		else if(switchType == TILE_DFREEZE && Team() != TEAM_SUPER && (switcherNumber == 0 || Collision()->m_pSwitchers[switcherNumber].m_Status[Team()]))
+		{
+			m_DeepFreeze = true;
+		}
+		else if(switchType == TILE_DUNFREEZE && Team() != TEAM_SUPER && (switcherNumber == 0 || Collision()->m_pSwitchers[switcherNumber].m_Status[Team()]))
+		{
+			m_DeepFreeze = false;
+		}
 	}
-	else if(Collision()->IsSwitch(MapIndex) == TILE_SWITCHTIMEDOPEN && Team() != TEAM_SUPER)
-	{
-		Collision()->m_pSwitchers[Collision()->GetSwitchNumber(MapIndex)].m_Status[Team()] = true;
-		Collision()->m_pSwitchers[Collision()->GetSwitchNumber(MapIndex)].m_EndTick[Team()] = GameWorld()->GameTick() + 1 + Collision()->GetSwitchDelay(MapIndex)*GameWorld()->GameTickSpeed() ;
-		Collision()->m_pSwitchers[Collision()->GetSwitchNumber(MapIndex)].m_Type[Team()] = TILE_SWITCHTIMEDOPEN;
-	}
-	else if(Collision()->IsSwitch(MapIndex) == TILE_SWITCHTIMEDCLOSE && Team() != TEAM_SUPER)
-	{
-		Collision()->m_pSwitchers[Collision()->GetSwitchNumber(MapIndex)].m_Status[Team()] = false;
-		Collision()->m_pSwitchers[Collision()->GetSwitchNumber(MapIndex)].m_EndTick[Team()] = GameWorld()->GameTick() + 1 + Collision()->GetSwitchDelay(MapIndex)*GameWorld()->GameTickSpeed();
-		Collision()->m_pSwitchers[Collision()->GetSwitchNumber(MapIndex)].m_Type[Team()] = TILE_SWITCHTIMEDCLOSE;
-	}
-	else if(Collision()->IsSwitch(MapIndex) == TILE_SWITCHCLOSE && Team() != TEAM_SUPER)
-	{
-		Collision()->m_pSwitchers[Collision()->GetSwitchNumber(MapIndex)].m_Status[Team()] = false;
-		Collision()->m_pSwitchers[Collision()->GetSwitchNumber(MapIndex)].m_EndTick[Team()] = 0;
-		Collision()->m_pSwitchers[Collision()->GetSwitchNumber(MapIndex)].m_Type[Team()] = TILE_SWITCHCLOSE;
-	}
-	else if(Collision()->IsSwitch(MapIndex) == TILE_FREEZE && Team() != TEAM_SUPER)
-	{
-		if(Collision()->GetSwitchNumber(MapIndex) == 0 || Collision()->m_pSwitchers[Collision()->GetSwitchNumber(MapIndex)].m_Status[Team()])
-			Freeze(Collision()->GetSwitchDelay(MapIndex));
-	}
-	else if(Collision()->IsSwitch(MapIndex) == TILE_DFREEZE && Team() != TEAM_SUPER && (Collision()->GetSwitchNumber(MapIndex) == 0 || Collision()->m_pSwitchers[Collision()->GetSwitchNumber(MapIndex)].m_Status[Team()]))
-	{
-		m_DeepFreeze = true;
-	}
-	else if(Collision()->IsSwitch(MapIndex) == TILE_DUNFREEZE && Team() != TEAM_SUPER && (Collision()->GetSwitchNumber(MapIndex) == 0 || Collision()->m_pSwitchers[Collision()->GetSwitchNumber(MapIndex)].m_Status[Team()]))
-	{
-		m_DeepFreeze = false;
-	}
-	else if(Collision()->IsSwitch(MapIndex) == TILE_JUMP)
+	else if(switchType == TILE_JUMP)
 	{
 		int newJumps = Collision()->GetSwitchDelay(MapIndex);
 
-		if (newJumps != m_Core.m_Jumps)
+		if(newJumps != m_Core.m_Jumps)
 		{
 			m_Core.m_Jumps = newJumps;
 		}
