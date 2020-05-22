@@ -322,7 +322,7 @@ int CEditor::PopupGroup(CEditor *pEditor, CUIRect View, void *pContext)
 	};
 
 	CProperty aProps[] = {
-		{"Order", pEditor->m_SelectedGroup, PROPTYPE_INT_STEP, 0, pEditor->m_Map.m_lGroups.size()-1},
+		{"Order", pEditor->m_SelectedGroup+1, PROPTYPE_INT_STEP, 1, pEditor->m_Map.m_lGroups.size()},
 		{"Pos X", -pEditor->m_Map.m_lGroups[pEditor->m_SelectedGroup]->m_OffsetX, PROPTYPE_INT_SCROLL, -1000000, 1000000},
 		{"Pos Y", -pEditor->m_Map.m_lGroups[pEditor->m_SelectedGroup]->m_OffsetY, PROPTYPE_INT_SCROLL, -1000000, 1000000},
 		{"Para X", pEditor->m_Map.m_lGroups[pEditor->m_SelectedGroup]->m_ParallaxX, PROPTYPE_INT_SCROLL, -1000000, 1000000},
@@ -348,7 +348,7 @@ int CEditor::PopupGroup(CEditor *pEditor, CUIRect View, void *pContext)
 		pEditor->m_Map.m_Modified = true;
 
 	if(Prop == PROP_ORDER)
-		pEditor->m_SelectedGroup = pEditor->m_Map.SwapGroups(pEditor->m_SelectedGroup, NewVal);
+		pEditor->m_SelectedGroup = pEditor->m_Map.SwapGroups(pEditor->m_SelectedGroup, NewVal-1);
 
 	// these can not be changed on the game group
 	if(!pEditor->GetSelectedGroup()->m_GameGroup)
@@ -426,8 +426,8 @@ int CEditor::PopupLayer(CEditor *pEditor, CUIRect View, void *pContext)
 	};
 
 	CProperty aProps[] = {
-		{"Group", pEditor->m_SelectedGroup, PROPTYPE_INT_STEP, 0, pEditor->m_Map.m_lGroups.size()-1},
-		{"Order", pEditor->m_lSelectedLayers[0], PROPTYPE_INT_STEP, 0, pCurrentGroup->m_lLayers.size()},
+		{"Group", pEditor->m_SelectedGroup+1, PROPTYPE_INT_STEP, 1, pEditor->m_Map.m_lGroups.size()},
+		{"Order", pEditor->m_lSelectedLayers[0]+1, PROPTYPE_INT_STEP, 1, pCurrentGroup->m_lLayers.size()},
 		{"Detail", pCurrentLayer && pCurrentLayer->m_Flags&LAYERFLAG_DETAIL, PROPTYPE_BOOL, 0, 1},
 		{0},
 	};
@@ -446,9 +446,10 @@ int CEditor::PopupLayer(CEditor *pEditor, CUIRect View, void *pContext)
 		pEditor->m_Map.m_Modified = true;
 
 	if(Prop == PROP_ORDER)
-		pEditor->SelectLayer(pCurrentGroup->SwapLayers(pEditor->m_lSelectedLayers[0], NewVal));
+		pEditor->SelectLayer(pCurrentGroup->SwapLayers(pEditor->m_lSelectedLayers[0], NewVal-1));
 	else if(Prop == PROP_GROUP && pCurrentLayer && pCurrentLayer->m_Type != LAYERTYPE_GAME)
 	{
+		NewVal--;
 		if(NewVal >= 0 && NewVal < pEditor->m_Map.m_lGroups.size())
 		{
 			pCurrentGroup->m_lLayers.remove(pCurrentLayer);
