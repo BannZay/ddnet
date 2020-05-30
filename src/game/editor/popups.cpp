@@ -348,7 +348,10 @@ int CEditor::PopupGroup(CEditor *pEditor, CUIRect View, void *pContext)
 		pEditor->m_Map.m_Modified = true;
 
 	if(Prop == PROP_ORDER)
+	{		
+		dbg_msg("general", "This group is now has position '%d' in the zero based group list. There is %d items in the list", NewVal, pEditor->m_Map.m_lGroups.size());
 		pEditor->m_SelectedGroup = pEditor->m_Map.SwapGroups(pEditor->m_SelectedGroup, NewVal);
+	}
 
 	// these can not be changed on the game group
 	if(!pEditor->GetSelectedGroup()->m_GameGroup)
