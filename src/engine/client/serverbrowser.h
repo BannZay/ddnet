@@ -163,8 +163,6 @@ private:
 	int m_NumServerCapacity;
 
 	int m_Sorthash;
-	char m_aFilterString[64];
-	char m_aFilterGametypeString[128];
 
 	int m_ServerlistType;
 	int64 m_BroadcastTime;

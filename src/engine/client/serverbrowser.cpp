@@ -55,8 +55,6 @@ CServerBrowser::CServerBrowser()
 	m_NumServerCapacity = 0;
 
 	m_Sorthash = 0;
-	m_aFilterString[0] = 0;
-	m_aFilterGametypeString[0] = 0;
 
 	m_ServerlistType = 0;
 	m_BroadcastTime = 0;
@@ -394,8 +392,6 @@ void CServerBrowser::Sort()
 	for(i = 0; i < m_NumSortedServers; i++)
 		m_ppServerlist[m_pSortedServerlist[i]]->m_Info.m_SortedIndex = i;
 
-	str_copy(m_aFilterGametypeString, g_Config.m_BrFilterGametype, sizeof(m_aFilterGametypeString));
-	str_copy(m_aFilterString, g_Config.m_BrFilterString, sizeof(m_aFilterString));
 	m_Sorthash = SortHash();
 }
 
