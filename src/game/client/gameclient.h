@@ -52,7 +52,7 @@ public:
 
 	bool m_Race;
 
-	bool m_DontMaskEntities;
+	bool m_DontMaskEntities = true;
 };
 
 class CGameClient : public IGameClient
